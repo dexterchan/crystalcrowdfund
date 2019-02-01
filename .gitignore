@@ -1,0 +1,7 @@
+node_modules
+
+*.decrypted
+*.encrypted
+.next
+
+package-lock.json
