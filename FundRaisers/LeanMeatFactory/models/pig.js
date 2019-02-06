@@ -1,5 +1,6 @@
 const Joi = require("joi");
 const Mongoose =require("mongoose");
+const _ = require("lodash");
 const uuidv1 = require('uuid/v1');
 const moment = require("moment");
 
@@ -43,7 +44,9 @@ PigSchema.statics.lookup=async function(pid){
 PigSchema.statics.bornPig = function(backDate){
     let pig;
     const pigid=PigSchema.statics.generatePigId();
-    const bDate=moment().add(backDate*(-1),"days");
+    const bdate=new Date();
+    const m = moment.utc(bdate.toISOString().split("T",1));
+    const bDate=m.add(backDate*(-1),"days");
     pig = new Pig({
         pigid: pigid,
     bornDate: bDate.toDate(),//7 days ago
@@ -54,17 +57,22 @@ PigSchema.statics.bornPig = function(backDate){
     return pig;
 }
 
+
+
 PigSchema.methods.growEachMonth = async function(){
     
-    const lastRecordDate = moment(this.recordDate);
-    const bornDate = moment(this.bornDate);
+    newPig = new Pig(_.pick(this,["pigid","bornDate","weight","recordDate"]));
+    newPig._id=Mongoose.Types.ObjectId();
+    const lastRecordDate = moment(newPig.recordDate);
+    const bornDate = moment(newPig.bornDate);
     const age = moment.duration(lastRecordDate.diff(bornDate)).as("M");
-    this.recordDate = lastRecordDate.add(1,"M").toDate();
-    if(age<12 && this.weight<MAX_WEIGHT)
-        this.weight += (growthrate * Math.random());
-    //console.log(`Age: ${age} ${this.weight}`);
-    await this.save();
-
+    newPig.recordDate = lastRecordDate.add(1,"M").toDate();
+    if(age<12 && newPig.weight<MAX_WEIGHT)
+        newPig.weight += (growthrate * Math.random());
+    console.log(`Age: ${age} ${newPig.weight}`);
+    
+    await newPig.save();
+    return newPig;
 }
 
 function validatePig(pig) {
