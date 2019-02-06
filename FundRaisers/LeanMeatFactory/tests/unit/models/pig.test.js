@@ -13,7 +13,7 @@ describe("save a pig record",()=>{
     let pigid;
     beforeEach(async()=>{
         
-        await Pig.remove({});
+        
         pig = Pig.bornPig(90);
 
         pigid = pig.pigid;
@@ -21,7 +21,7 @@ describe("save a pig record",()=>{
     });
     
     afterEach( async()=>{
-        
+        await Pig.remove({});
         
     });
 
@@ -57,7 +57,7 @@ describe("save a pig record",()=>{
         rPig = await Pig.lookup(pigid);
         OrgWeight = rPig.weight;
         rPig=await rPig.growEachMonth();
-            //expect(rPig.weight-OrgWeight).toBeCloseTo(0);
+        expect(rPig.weight-OrgWeight).toBeCloseTo(0);
             
         
     });

@@ -69,7 +69,7 @@ PigSchema.methods.growEachMonth = async function(){
     newPig.recordDate = lastRecordDate.add(1,"M").toDate();
     if(age<12 && newPig.weight<MAX_WEIGHT)
         newPig.weight += (growthrate * Math.random());
-    console.log(`Age: ${age} ${newPig.weight}`);
+    //console.log(`Age: ${age} ${newPig.weight}`);
     
     await newPig.save();
     return newPig;
