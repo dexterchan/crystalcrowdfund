@@ -26,7 +26,18 @@ const PigSchema = new Mongoose.Schema({
         required:true,
     }
 });
-
+PigSchema.statics.getPigId = async function(){
+    const rPiglst= Pig.distinct("pigid");
+    /*
+    await Pig.aggregate([
+        {
+            $group: {
+                _id: "$pigid"
+            }
+        }]
+    ).exec();*/
+    return rPiglst;
+};
 PigSchema.statics.generatePigId=  function(){
     const id=uuidv1();
     return  id.replace(/-/g,"");
@@ -73,6 +84,10 @@ PigSchema.methods.growEachMonth = async function(){
     
     await newPig.save();
     return newPig;
+}
+
+PigSchema.static.lookupRecordDates = async function(){
+    
 }
 
 function validatePig(pig) {
