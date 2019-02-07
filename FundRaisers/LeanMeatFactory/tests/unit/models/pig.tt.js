@@ -1,11 +1,14 @@
 //const {Pig} = require("../../../models/pig");
 const Mongoose =require("mongoose");
-const db = require("../../startup/db");
+
+const db = require("../../../startup/db");
 const config=require("config");
+
+const bcrypt = require('bcrypt');
 
 const moment = require("moment");
 const _ = require("lodash");
-const {Pig,createPigs,growPigs} = require("../../models/pig");
+const {Pig,createPigs,growPigs} = require("../../../models/pig");
 db();
 
 describe("Pig test",()=>{
@@ -52,12 +55,40 @@ describe("Pig test",()=>{
             for (var i=0;i<growthTime;i++){
                 await growPigs();
             }
-            console.log(await Pig.find({}).count())
+            //console.log(await Pig.find({}).count())
             const dateList=await Pig.getGrowRecordDates();
-
-
             expect (dateList.length).toBe(growthTime+1);
-            console.log(dateList.map((r)=>{return r._id}));
+            //console.log(dateList);
+            await Pig.remove({});
+        });
+
+        it("get growth reports", async()=>{
+            const growthTime=3;
+
+            await Pig.remove({});
+            piglist=await createPigs(5);
+            
+            for (var i=0;i<growthTime;i++){
+                await growPigs();
+            }
+            
+            const dateList=await Pig.getGrowRecordDates();
+            expect (dateList.length).toBeGreaterThan(1);
+            const {sumweight,reportHash,growRecord} = await Pig.lookupAggGrowthRecordByDate(dateList[0]);
+            //console.log(sumweight[0]);
+            //console.log(growRecord);
+            //verify the sum weight
+            const accvalue=growRecord.reduce(
+                (acc,currentValue)=> acc + currentValue.weight,
+                0
+            );
+            expect(sumweight[0].sum).toBeCloseTo(accvalue);
+
+            //verify the hash
+            const strgrowrecord=JSON.stringify(growRecord);
+            const validReport = await bcrypt.compare(strgrowrecord, reportHash);
+            //console.log(validReport);
+            expect(validReport).toBeTruthy();
             await Pig.remove({});
         });
 

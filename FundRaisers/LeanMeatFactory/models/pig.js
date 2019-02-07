@@ -3,6 +3,7 @@ const Mongoose =require("mongoose");
 const _ = require("lodash");
 const uuidv1 = require('uuid/v1');
 const moment = require("moment");
+const bcrypt = require('bcrypt');
 
 const MAX_WEIGHT=300;
 const growthrate=MAX_WEIGHT/12;
@@ -39,15 +40,17 @@ PigSchema.statics.getPigId =  function(){
     return rPiglst;
 };
 
-PigSchema.statics.getGrowRecordDates = function(){
+PigSchema.statics.getGrowRecordDates = async function(){
     let rDateList;//= Pig.distinct("recordDate").sort({recordDate:-1});
-    rDateList= Pig.aggregate([
+    rDateList= await Pig.aggregate([
         {
             $group: {
                 _id: "$recordDate"
             }
         }]
     ).sort({_id:-1});
+
+    rDateList=rDateList.map((r)=>{return r._id});
     return rDateList;
 }
 
@@ -100,6 +103,29 @@ PigSchema.statics.growEachMonth = async function(pigid){
     return newPig;
 }
 
+PigSchema.statics.lookupAggGrowthRecordByDate = async function(date){
+    const sumweight=await Pig.aggregate(
+        [
+                {
+                    $match: {
+                        recordDate: date
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        sum: {$sum: "$weight"}
+                    }
+                }
+        ]
+        );
+    const growRecord = await Pig.find({recordDate:date}).sort({pigid:1});
+    const strgrowrecord=JSON.stringify(growRecord);
+    const salt = await bcrypt.genSalt(10);
+    const reportHash = await bcrypt.hash(strgrowrecord, salt);
+    return {sumweight,reportHash,growRecord};
+};
+
 
 function validatePig(pig) {
     const schema = {
@@ -122,8 +148,8 @@ module.exports.createPigs= async function createPigs(numPigs){
         .fill()
         .map(async (element, index) => {
             const pig= Pig.bornPig(0);
-            await pig.save();
-            return pig;
+            return pig.save();
+            //return pig;
         })
     );
     return pigs;
@@ -153,6 +179,3 @@ module.exports.growPigs = async function (){
 }
 
 
-PigSchema.static.lookupAggGrowthRecordByDate = async function(date){
-    
-};
