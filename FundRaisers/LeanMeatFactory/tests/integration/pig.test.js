@@ -55,7 +55,9 @@ describe("Pig test",()=>{
             console.log(await Pig.find({}).count())
             const dateList=await Pig.getGrowRecordDates();
 
+
             expect (dateList.length).toBe(growthTime+1);
+            console.log(dateList.map((r)=>{return r._id}));
             await Pig.remove({});
         });
 

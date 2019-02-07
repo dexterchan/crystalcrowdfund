@@ -40,7 +40,14 @@ PigSchema.statics.getPigId =  function(){
 };
 
 PigSchema.statics.getGrowRecordDates = function(){
-    const rDateList= Pig.distinct("recordDate");
+    let rDateList;//= Pig.distinct("recordDate").sort({recordDate:-1});
+    rDateList= Pig.aggregate([
+        {
+            $group: {
+                _id: "$recordDate"
+            }
+        }]
+    ).sort({_id:-1});
     return rDateList;
 }
 
@@ -93,9 +100,6 @@ PigSchema.statics.growEachMonth = async function(pigid){
     return newPig;
 }
 
-PigSchema.static.lookupRecordDates = async function(){
-    
-}
 
 function validatePig(pig) {
     const schema = {
@@ -147,6 +151,8 @@ module.exports.growPigs = async function (){
     }
     return pigidList;*/
 }
-module.exports.getPigGrowthRecordOfDate = async function (date){
 
-}
+
+PigSchema.static.lookupAggGrowthRecordByDate = async function(date){
+    
+};
