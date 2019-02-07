@@ -1,11 +1,11 @@
-const {Pig} = require("../../../models/pig");
+//const {Pig} = require("../../../models/pig");
 const Mongoose =require("mongoose");
-const db = require("../../../startup/db");
+const db = require("../../startup/db");
 const config=require("config");
 
 const moment = require("moment");
 const _ = require("lodash");
-const {createPigs} = require("../../../createPig");
+const {Pig,createPigs,growPigs} = require("../../models/pig");
 db();
 
 describe("Pig test",()=>{
@@ -15,26 +15,48 @@ describe("Pig test",()=>{
         let piglist;
         let pigidList;
         beforeEach(async()=>{
-            piglist=await createPigs(10);
+            
+            
 
         });
         afterEach( async()=>{
+            //await Pig.remove({});
+        });
+
+        
+        it("grow each pig id",async()=>{
+            await Pig.remove({});
+            piglist=await createPigs(10);
+            await growPigs();
+            pigidList=await Pig.getPigId();
+            var i=0;
+            for (i=0;i<10;i++){
+                const pigRecords=await Pig.find({pigid:pigidList[i]}).sort({recordDate:-1});
+                if(pigRecords.length<=1){
+                    console.log(pigidList[i]);
+                }
+                expect(pigRecords.length).toBeGreaterThan(1);
+                //console.log(pigRecords[i],pigRecords[i+1]);
+                expect (pigRecords[0].weight - pigRecords[1].weight).toBeGreaterThan(0);
+                expect (pigRecords[0].recordDate - pigRecords[1].recordDate).toBeGreaterThan(0);
+            }
             await Pig.remove({});
         });
-        it("aggregate pig id",async()=>{
-            //console.log(piglist);
-            pigidList=await Pig.getPigId();
-            expect(pigidList.length).toBe(10);
-        });
-        it("grow each pig id",async()=>{
-            pigidList=await Pig.getPigId();
-            pigidList.map(async (pigid, index) => {
-                var rPig = await Pig.lookup(pigid);
-                OrgWeight = rPig.weight;
-                rPig=await rPig.growEachMonth();
-                expect(rPig.weight-OrgWeight).toBeGreaterThan(0);
-                return rPig;
-            });
+        
+        it("get growth record", async()=>{
+            const growthTime=10;
+
+            await Pig.remove({});
+            piglist=await createPigs(1);
+            
+            for (var i=0;i<growthTime;i++){
+                await growPigs();
+            }
+            console.log(await Pig.find({}).count())
+            const dateList=await Pig.getGrowRecordDates();
+
+            expect (dateList.length).toBe(growthTime+1);
+            await Pig.remove({});
         });
 
     });

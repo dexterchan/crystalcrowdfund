@@ -26,7 +26,7 @@ const PigSchema = new Mongoose.Schema({
         required:true,
     }
 });
-PigSchema.statics.getPigId = async function(){
+PigSchema.statics.getPigId =  function(){
     const rPiglst= Pig.distinct("pigid");
     /*
     await Pig.aggregate([
@@ -38,6 +38,12 @@ PigSchema.statics.getPigId = async function(){
     ).exec();*/
     return rPiglst;
 };
+
+PigSchema.statics.getGrowRecordDates = function(){
+    const rDateList= Pig.distinct("recordDate");
+    return rDateList;
+}
+
 PigSchema.statics.generatePigId=  function(){
     const id=uuidv1();
     return  id.replace(/-/g,"");
@@ -70,9 +76,10 @@ PigSchema.statics.bornPig = function(backDate){
 
 
 
-PigSchema.methods.growEachMonth = async function(){
-    
-    newPig = new Pig(_.pick(this,["pigid","bornDate","weight","recordDate"]));
+
+PigSchema.statics.growEachMonth = async function(pigid){
+    const rPig = await Pig.lookup(pigid);
+    newPig = new Pig(_.pick(rPig,["pigid","bornDate","weight","recordDate"]));
     newPig._id=Mongoose.Types.ObjectId();
     const lastRecordDate = moment(newPig.recordDate);
     const bornDate = moment(newPig.bornDate);
@@ -104,3 +111,42 @@ const Pig = Mongoose.model('Pig',PigSchema);
 
 module.exports.Pig=Pig;
 module.exports.valudatePig=validatePig;
+
+module.exports.createPigs= async function createPigs(numPigs){
+    const pigs = await Promise.all(
+        Array(parseInt(numPigs))
+        .fill()
+        .map(async (element, index) => {
+            const pig= Pig.bornPig(0);
+            await pig.save();
+            return pig;
+        })
+    );
+    return pigs;
+    //console.log(pigs);
+}
+
+module.exports.growPigs = async function (){
+    const pigidList=await Pig.getPigId();
+    return  Promise.all(
+    pigidList.map(async (pigid, index) => {
+            return new Promise( async (resolve,reject)=>{
+                    const rPig = await Pig.lookup(pigid);
+                    resolve(await Pig.growEachMonth(pigid));
+                }
+            );
+        }
+    )
+    );
+    /*
+    for( p in pigidList){
+        const pigid = pigidList[p];
+        var rPig = await Pig.lookup(pigid);
+        OrgWeight = rPig.weight;
+        rPig = await Pig.growEachMonth(pigid);
+    }
+    return pigidList;*/
+}
+module.exports.getPigGrowthRecordOfDate = async function (date){
+
+}
