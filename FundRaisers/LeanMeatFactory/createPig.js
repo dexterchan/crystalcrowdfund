@@ -4,4 +4,4 @@ const {Pig,createPigs} = require("./models/pig");
 
 db();
 
-createPigs(2);
+createPigs(10);

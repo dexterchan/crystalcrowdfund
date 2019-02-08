@@ -13,6 +13,24 @@ router.post("/born",async(req,res)=>{
     res.send(pig);
 });
 
+router.put("/grow/:id",async(req,res)=>{
+    const pigid = req.params.id;
+    let rPig;
+    try{
+         rPig = await Pig.lookup(pigid);
+         rPig=await Pig.growEachMonth(pigid);
+    }catch(ex){
+        if(!rPig) {
+            res.status(400).send(`Not found ${pigid}`);
+        }else{
+            res.status(400).send(ex.message);
+        }
+    }
+    
+    
+    
+    res.send(rPig);
+});
 
 router.get("/GrowRecordDates",async(req,res)=>{
     const dateList=await Pig.getGrowRecordDates();

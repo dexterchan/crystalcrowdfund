@@ -31,12 +31,6 @@ describe("/api/pigs post", ()=>{
                     }
                     resolve(res.body);
                 });
-                
-                /*
-                if(res.status!=200){
-                    console.log(res.status);
-                    throw new Error("failed to born pigs!")
-                }*/
             })
         );
 
@@ -47,7 +41,21 @@ describe("/api/pigs post", ()=>{
 
         await Pig.remove({});
     });
+    
+    it("should grow pig",async ()=>{
+        await Pig.remove({});
+        const piglist=await createPigs(1);
+        //console.log(piglist);
+        const res=await request(server)
+                    .put("/api/pigs/grow/"+piglist[0].pigid)
+                    //.set("x-auth-token",token)
+                    .send();
+        expect(res.status).toBe(200);
+       
 
+        await Pig.remove({});
+    });
+    
     it("check pig reports",async ()=>{
         await Pig.remove({});
         const numPigs=5,growthTime=10;
@@ -76,7 +84,7 @@ describe("/api/pigs post", ()=>{
                     //.set("x-auth-token",token)
                     .send();
         expect(res2.status).toBe(200);
-        console.log(res2.body);
+        //console.log(res2.body);
         await Pig.remove({});
     });
 
