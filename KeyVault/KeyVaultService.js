@@ -24,11 +24,19 @@ publicKeyFunc=(acct)=>{
 };
 
 privateKeyAsyncPromise=(acct)=>{
-    return keyStore.getPrivateKeyPromise(acct);
+    try {
+        return keyStore.getPrivateKeyPromise(acct);
+    } catch (err) {
+        throw new Error(`user ${acct} key not found`)
+    }
 }
 
 publicKeyAsyncPromise=(acct)=>{
-    return keyStore.getPublicKeyPromise(acct);
+    try {
+        return keyStore.getPublicKeyPromise(acct);
+    } catch (err) {
+        throw new Error(`user ${acct} cert not found`)
+    }
 }
 
 /*
@@ -41,7 +49,7 @@ getPrivateKey =async (acct)=>{
 
         console.log(Err.message);
     }
-    
+
 }
 
 getPublicKey =async (acct)=>{

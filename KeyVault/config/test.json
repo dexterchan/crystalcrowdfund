@@ -1,3 +1,4 @@
 {
-    "store":"LocalFileKeyStore"
+    "store":"LocalFileKeyStore",
+    "jwtPrivateKey":"12345"
 }

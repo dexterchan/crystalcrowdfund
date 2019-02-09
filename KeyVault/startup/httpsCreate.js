@@ -1,6 +1,6 @@
 const path=require("path");
-var fs = require('fs-extra')
-var https = require('https')
+const fs = require('fs-extra')
+const https = require('https')
 
 
 
