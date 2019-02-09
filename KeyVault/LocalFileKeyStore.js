@@ -6,7 +6,7 @@ class MyKeyStore{
     constructor(){
         this.keyPath= path.resolve(__dirname,"keys");
         this.privKeyext= ".privkey.pem";
-        this.pubKeyext=".certificate.pem";
+        this.pubKeyext=".pubkey.pem";
     }
 
     getPrivateKey(acct){

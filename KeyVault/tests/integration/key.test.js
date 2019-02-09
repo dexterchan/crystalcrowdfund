@@ -46,6 +46,13 @@ describe("/api/auth", () => {
     const res=await exec();
 
     expect (res.status).toBe(400);
+    //console.log(await res.text());
+  });
+  it("return 200 if account is found",async()=>{
+    account="Pooh";
+    const res=await exec();
+
+    expect (res.status).toBe(200);
     console.log(await res.text());
   });
 });
