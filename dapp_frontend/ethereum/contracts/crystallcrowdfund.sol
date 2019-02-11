@@ -2,8 +2,8 @@ pragma solidity >=0.4.22 <0.6.0;
 
 /*
 Note 1
-In response to General Data Protection Regulation (GDPR), 
-use hashed username to reference any personel
+In response to Europe Union - General Data Protection Regulation (GDPR), 
+use hashed ID to reference any personel
 
 Note 2 From NIST 
 Report on Post-Quantum Cryptography
@@ -12,14 +12,51 @@ Under threat of quantum computing,
 we should not store asymetric encrypted cipher inside public blockchain
 Instead, symmetric encrypted cipher or hash are still acceptable.
 */
+contract crystalCrowdFundFactory{
+    
+}
 
+contract crystalCrowdFund{
+     //investor should be in member board before joining
+    MemberBoard memberBoard;
+    
+    bytes32 public FundRaiserHashID;
+    bytes32 public salt;
+    constructor() public{
+        salt=keccak256(abi.encode(block.difficulty,now));
+        FundRaiserHashID=gethashID("fund raiser");
+    }
+    //Symmetic key for investor communication
+    struct symKeyRecord{
+        bytes32 hashID;
+        uint date;
+    }
+    
+    symKeyRecord[] public investorSymKeyRecords;
+    
+    
+    
+    modifier restrictedFundRaiser(string memory name){
+        bytes32 requestor = gethashID(name);
+        require(requestor==FundRaiserHashID,"Only Fund Raiser can access");
+        _;
+    }
+    
+    function transfer(address A, address B) public{
+        
+    }
+    
+    function gethashID(string memory name) public view returns (bytes32){
+        return keccak256(abi.encode(salt, name));
+    } 
+}
 
 
 contract MemberBoard{
     //In response to General Data Protection Regulation (GDPR), 
-    //use hashname to reference member
+    //use hashID to reference member
     struct Member{
-        bytes32 hashname;
+        bytes32 hashID;
         int credit;
     }
     address public myManager;
@@ -27,7 +64,7 @@ contract MemberBoard{
     Member[] public memberList;
     bytes32 public salt;
     
-    function getHashName(string memory name) public view returns (bytes32){
+    function gethashID(address name) public view returns (bytes32){
         return keccak256(abi.encode(salt, name));
     } 
     
@@ -40,29 +77,31 @@ contract MemberBoard{
         _;
     }
     
-    function addMember(bytes32  _hashname, int _credit) public restrictedmgr{
-        require(memberMap[_hashname]==0," has been registered once");
+    function addMember(address name, int _credit) public restrictedmgr{
+        bytes32 _hashID=gethashID(name);
+        
+        require(memberMap[_hashID]==0," has been registered once");
         Member memory m = Member(
            {
-               hashname:_hashname,
+               hashID:_hashID,
                credit:_credit
            } 
         );
         
         memberList.push(m);
         uint inx = memberList.length;
-        memberMap[_hashname]=inx;
+        memberMap[_hashID]=inx;
     }
     
-    function getMember (bytes32 m ) public view returns (uint){
-        uint inx = memberMap[m];
+    function getMember (address name ) public view returns (uint){
+        bytes32 hashID = gethashID(name);
+        uint inx = memberMap[hashID];
         require(inx>0,"Not found the member");
         return inx-1;
     }
     
-    
-    function updateMemberCredit(bytes32 m, int creditChange) public restrictedmgr returns (int ) {
-        uint inx = getMember(m);
+    function updateMemberCredit(address name, int creditChange) public restrictedmgr returns (int ) {
+        uint inx = getMember(name);
         Member storage m = memberList[inx];
         
         return m.credit+=creditChange;
