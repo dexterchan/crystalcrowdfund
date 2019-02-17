@@ -24,7 +24,7 @@ contract crystalCrowdFund{
     bytes32 public salt;
     constructor() public{
         salt=keccak256(abi.encode(block.difficulty,now));
-        FundRaiserHashID=gethashID("fund raiser");
+        FundRaiserHashID=gethashID(msg.sender);
     }
     //Symmetic key for investor communication
     struct symKeyRecord{
@@ -36,8 +36,8 @@ contract crystalCrowdFund{
     
     
     
-    modifier restrictedFundRaiser(string memory name){
-        bytes32 requestor = gethashID(name);
+    modifier restrictedFundRaiser(){
+        bytes32 requestor = gethashID(msg.sender);
         require(requestor==FundRaiserHashID,"Only Fund Raiser can access");
         _;
     }
@@ -46,7 +46,7 @@ contract crystalCrowdFund{
         
     }
     
-    function gethashID(string memory name) public view returns (bytes32){
+    function gethashID(address name) public view returns (bytes32){
         return keccak256(abi.encode(salt, name));
     } 
 }
