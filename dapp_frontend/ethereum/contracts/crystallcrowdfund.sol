@@ -12,35 +12,78 @@ Under threat of quantum computing,
 we should not store asymetric encrypted cipher inside public blockchain
 Instead, symmetric encrypted cipher or hash are still acceptable.
 */
-contract crystalCrowdFundFactory{
+library utility {
+    function gethashID(bytes32 salt, address id) public view returns (bytes32){
+        return keccak256(abi.encode(salt, id));
+    }
+    
+    function gethashString(bytes32 salt, string memory str) public view returns (bytes32){
+        return keccak256(abi.encode(salt, str));
+    } 
+}
+contract CrystalCrowdFundFactory{
+    address public myManager;
+    
+    CrystalCrowdFund[] public deployedFunds;
+    
+    constructor() public{
+        myManager=msg.sender;
+    }
+    
+    function createFund(address _fundRaiser, string memory _abstract, string memory _url,bytes32 _dochash, bytes32 symmetricKeyHashCode) public returns(CrystalCrowdFund){
+        //require( memberMap[msg.sender]>0,"Only member can create project");
+        CrystalCrowdFund  newFund=new CrystalCrowdFund(_fundRaiser,_abstract,_url, _dochash,symmetricKeyHashCode);
+        deployedFunds.push(newFund);
+        return newFund;
+    }
+    
     
 }
 
-contract crystalCrowdFund{
+contract CrystalCrowdFund{
      //investor should be in member board before joining
     MemberBoard memberBoard;
     
+    address public FundAdmin;
     bytes32 public FundRaiserHashID;
     bytes32 public salt;
-
+    string public myabstract;
+    string public url;
+    bytes32 public dochash;
+    
     //Events
     event Created(address _contractAddress, address _from);
 
-    constructor() public{
-        address sender = msg.sender;
+    constructor(address _fundRaiser, string memory _abstract, string memory _url, bytes32 _dochash, bytes32 _symkeyHashCode  ) public{
+        FundAdmin= msg.sender;
         salt=keccak256(abi.encode(block.difficulty,now));
-        FundRaiserHashID=gethashID(sender);
-        emit Created(address(this), sender);
+        FundRaiserHashID=gethashID(_fundRaiser);
+        
+        myabstract=_abstract;
+        url=_url;
+        dochash=_dochash;
+        
+        SymKeyRecord memory symkey= SymKeyRecord({
+            hashID:_symkeyHashCode,
+            date: now}
+            );
+        investorSymKeyRecords.push(symkey);
+        
+        
+        emit Created(address(this), FundAdmin);
     }
     //Symmetic key for investor communication
-    struct symKeyRecord{
+    struct SymKeyRecord{
         bytes32 hashID;
         uint date;
     }
     
-    symKeyRecord[] public investorSymKeyRecords;
+    SymKeyRecord[] public investorSymKeyRecords;
     
-    
+    modifier restrictedFundAdmin(){
+        require(FundAdmin==msg.sender,"Only Fund Admin can access");
+        _;
+    }
     
     modifier restrictedFundRaiser(){
         bytes32 requestor = gethashID(msg.sender);
@@ -53,7 +96,7 @@ contract crystalCrowdFund{
     }
     
     function gethashID(address name) public view returns (bytes32){
-        return keccak256(abi.encode(salt, name));
+        return utility.gethashID(salt,name);
     } 
 }
 
