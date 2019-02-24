@@ -2,8 +2,9 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const client = require('./client');
 
-//import EmployeePage from "./index";
+import App from "./index";
 
+/*
 import EmployeeList from "./EmployeeList";
 
 class App extends React.Component {
@@ -24,7 +25,7 @@ class App extends React.Component {
 			<EmployeeList employees={this.state.employees}/>
 		)
 	}
-}
+}*/
 
 
 // tag::render[]

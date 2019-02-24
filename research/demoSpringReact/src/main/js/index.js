@@ -10,10 +10,11 @@ class EmployeePage extends Component {
 	}
 
 	componentDidMount() {
-		/*
+		
 		client({method: 'GET', path: '/api/employees'}).done(response => {
 			this.setState({employees: response.entity._embedded.employees});
-		});*/
+		});
+		/*
 		const jsonres = '[ { \
 			"firstName" : "Frodo",\
 			"lastName" : "Baggins",\
@@ -22,7 +23,7 @@ class EmployeePage extends Component {
 		const employeesList = JSON.parse(jsonres);
 		this.setState({
 			employees:employeesList
-		});
+		});*/
 	}
 
 	render() {
