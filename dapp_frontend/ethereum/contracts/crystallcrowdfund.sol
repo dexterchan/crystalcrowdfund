@@ -1,5 +1,6 @@
 pragma solidity >=0.4.22 <0.6.0;
 import './MemberBoard.sol';
+import './utility.sol';
 /*
 Note 1
 In response to Europe Union - General Data Protection Regulation (GDPR), 
@@ -12,22 +13,20 @@ Under threat of quantum computing,
 we should not store asymetric encrypted cipher inside public blockchain
 Instead, symmetric encrypted cipher or hash are still acceptable.
 */
-library utility {
-    function gethashID(bytes32 salt, address id) public view returns (bytes32){
-        return keccak256(abi.encode(salt, id));
-    }
-    
-    function gethashString(bytes32 salt, string memory str) public view returns (bytes32){
-        return keccak256(abi.encode(salt, str));
-    } 
-}
+
 contract CrystalCrowdFundFactory{
+    MemberBoard memberBoard;
     address public myManager;
-    
+    bytes32 public salt;
     CrystalCrowdFund[] public deployedFunds;
     
     constructor() public{
         myManager=msg.sender;
+        //**********************************************************************
+        //Don't run the library to get salt, it will consume large amount of gas
+        //salt = utility.getSalt();
+        //**********************************************************************
+        salt=keccak256(abi.encode(block.difficulty,now));
     }
     
     function createFund(address _fundRaiser, string memory _abstract, string memory _url,bytes32 _dochash, bytes32 symmetricKeyHashCode) public returns(CrystalCrowdFund){
@@ -42,7 +41,7 @@ contract CrystalCrowdFundFactory{
 
 contract CrystalCrowdFund{
      //investor should be in member board before joining
-    MemberBoard memberBoard;
+    
     
     address public FundAdmin;
     bytes32 public FundRaiserHashID;

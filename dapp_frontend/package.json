@@ -4,33 +4,23 @@
   "description": "",
   "main": "index.js",
   "directories": {
-    "test": "tests"
+    "test": "jesttests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha",
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Dexter W N Chan",
   "license": "GNU",
   "dependencies": {
-    "bcrypt": "^3.0.3",
-    "compression": "^1.7.3",
-    "config": "^1.29.4",
-    "express": "^4.16.2",
-    "express-async-errors": "^3.1.1",
-    "fawn": "^2.1.5",
-    "ganache-cli": "^6.3.0",
-    "helmet": "^3.15.0",
-    "joi": "^13.1.0",
-    "joi-objectid": "^2.0.0",
-    "joi-password-complexity": "^2.0.1",
-    "jsonwebtoken": "^8.1.1",
-    "lodash": "^4.17.4",
-    "moment": "^2.24.0",
-    "next-routes": "^1.4.2",
-    "node-fetch": "^2.3.0",
-    "truffle-hdwallet-provider": "^1.0.4",
-    "web3": "^1.0.0-beta.46",
-    "winston": "^3.1.0"
+    "ganache-cli": "6.2.5",
+    "solc": "^0.5.4",
+    "web3": "1.0.0-beta.37"
+  },
+  "devDependencies": {
+    "jest": "^24.1.0",
+    "mocha": "^6.0.1"
   }
 }
