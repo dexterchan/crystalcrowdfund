@@ -12,25 +12,6 @@ let Utility;
 let MemberBoard;
 const RSAAsyncSize=32;
 const parseSolcCompiledContract = require("../ethereum/ParseSolcCompiledContract");
-/*
-function parseSolcCompiledContract(jsonOut){
-    let contractABI={};
-    let contractByteCode = {};
-    let shortCName=[];
-    const combinedABI_Code = (jsonOut.contracts);
-    const contractNameLst = Object.keys(combinedABI_Code);
-    //console.log(contractNameLst);
-    contractNameLst.map((cName) => {
-        const contractName = cName.split(":")[1];
-        //console.log(combinedABI_Code[cName]);
-        shortCName.push(contractName);
-        contractABI[contractName] = JSON.parse(combinedABI_Code[cName].abi);
-        contractByteCode[contractName] = Buffer.from(combinedABI_Code[cName].bin,"hex").toString('hex')  ;
-    });
-    return {contractNameLst:shortCName,contractABI,contractByteCode};
-}
-*/
-
 
 
 describe("deploy funding contract",()=>{
@@ -40,6 +21,7 @@ describe("deploy funding contract",()=>{
     var contractName;
     let fundAddress;
     let fundContractABI;
+    const initCredit=1000000;
     beforeEach(async()=>{
         //await web3.eth.getAccounts() not working with 1.0.0.46beta
         accounts = await web3.eth.getAccounts();
@@ -66,12 +48,21 @@ describe("deploy funding contract",()=>{
 
         contractName="MemberBoard";
         MemberBoard=await deployContractFunc (contractName, admin,6541353);
+        //add a member
+        await MemberBoard.methods.addMember(fundAdmin,initCredit ).send({
+            from: admin
+            , gas:368491
+        });
+        await MemberBoard.methods.addMember(fundRaiser,initCredit ).send({
+            from: admin
+            , gas:368491
+        });
 
         contractName = "CrystalCrowdFundFactory";
         fundFactory=await deployContractFunc (contractName, fundAdmin,6541353);
         
     });
-
+    
     it("should return a funding contract",async()=>{
         const abstract="testing the first fund";
         const url="http://abc.com";
@@ -102,9 +93,9 @@ describe("deploy funding contract",()=>{
         fundAddress=addresses[0];
         assert(fundAddress);
         
-        const abi = fundContractABI;
+        //const abi = fundContractABI;
         const fund=  new web3.eth.Contract(
-            abi
+            fundContractABI
             ,fundAddress);
         //console.log(fund);
         
