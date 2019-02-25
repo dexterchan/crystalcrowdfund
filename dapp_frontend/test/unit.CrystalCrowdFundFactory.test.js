@@ -59,7 +59,15 @@ describe("deploy funding contract",()=>{
         });
 
         contractName = "CrystalCrowdFundFactory";
-        fundFactory=await deployContractFunc (contractName, fundAdmin,6541353);
+        //fundFactory=await deployContractFunc (contractName, fundAdmin,6541353);
+        fundFactory=await new web3.eth.Contract(contractABI[contractName])
+        .deploy({ data: contractByteCode[contractName],
+            arguments: [ MemberBoard.options.address ] 
+         }) //tell web3 to prepare a copy of contract for deployment
+        .send({
+            from: fundAdmin
+            , gas:6541353
+        });
         
     });
     

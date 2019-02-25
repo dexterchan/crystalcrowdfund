@@ -20,13 +20,14 @@ contract CrystalCrowdFundFactory{
     bytes32 public salt;
     CrystalCrowdFund[] public deployedFunds;
     
-    constructor() public{
+    constructor(MemberBoard _m) public{
         myManager=msg.sender;
         //**********************************************************************
         //Don't run the library to get salt, it will consume large amount of gas
         //salt = utility.getSalt();
         //**********************************************************************
         salt=keccak256(abi.encode(block.difficulty,now));
+        memberBoard=_m;
     }
     
     function createFund(
