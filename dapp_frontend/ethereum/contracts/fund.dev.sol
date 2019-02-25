@@ -20,38 +20,26 @@ contract CrystalCrowdFundFactory{
     bytes32 public salt;
     CrystalCrowdFund[] public deployedFunds;
     
-    constructor() public{
+    constructor(MemberBoard _m) public{
         myManager=msg.sender;
         //**********************************************************************
         //Don't run the library to get salt, it will consume large amount of gas
         //salt = utility.getSalt();
         //**********************************************************************
         salt=keccak256(abi.encode(block.difficulty,now));
+        memberBoard=_m;
     }
     
-    function createFund(
-        address _fundRaiser
-        ,string memory _abstract
-        , string memory _url
-        ,bytes32 _dochash
-        , bytes32 symmetricKeyHashCode
-        ) public returns(CrystalCrowdFund){
+    function createFund(address _fundRaiser, string memory _abstract, string memory _url,bytes32 _dochash, bytes32 symmetricKeyHashCode) public returns(CrystalCrowdFund){
         //require( memberMap[msg.sender]>0,"Only member can create project");
-        CrystalCrowdFund  newFund=new CrystalCrowdFund(
-            _fundRaiser
-            ,_abstract
-            ,_url
-            , _dochash
-            ,symmetricKeyHashCode
-            );
+        require(memberBoard.getMember(msg.sender)>=0,"Only member can access");
+        require(memberBoard.getMember(_fundRaiser)>=0,"Only member can be fund raiser");
+        CrystalCrowdFund  newFund=new CrystalCrowdFund(_fundRaiser,_abstract,_url, _dochash,symmetricKeyHashCode);
         deployedFunds.push(newFund);
         return newFund;
     }
     function getDeployedFunds() public view returns (CrystalCrowdFund[] memory){
         return deployedFunds;
-    }
-    function getNumberOfFunds() public view returns (uint256){
-        return deployedFunds.length;
     }
     
 }
@@ -63,32 +51,29 @@ contract CrystalCrowdFund{
     address public FundAdmin;
     bytes32 public FundRaiserHashID;
     bytes32 public salt;
-    string public fundabstract;
+    string public myabstract;
     string public url;
     bytes32 public dochash;
     
     //Events
     event Created(address _contractAddress, address _from);
 
-    constructor(
-                address _fundRaiser
-                ,string memory _abstract
-                ,string memory _url
-                ,bytes32 _dochash
-                ,bytes32 _symkeyHashCode  
-                ) public{
-        salt=keccak256(abi.encode(block.difficulty,now));
-        FundRaiserHashID = keccak256(abi.encode(salt, _fundRaiser));
+    constructor(address _fundRaiser, string memory _abstract, string memory _url, bytes32 _dochash, bytes32 _symkeyHashCode  ) public{
         FundAdmin= msg.sender;
-        fundabstract=_abstract;
-        dochash=_dochash;
+        salt=keccak256(abi.encode(block.difficulty,now));
+        FundRaiserHashID=gethashID(_fundRaiser);
+        
+        myabstract=_abstract;
         url=_url;
-
+        dochash=_dochash;
+        
         SymKeyRecord memory symkey= SymKeyRecord({
             hashID:_symkeyHashCode,
             date: now}
             );
         investorSymKeyRecords.push(symkey);
+        
+        
         emit Created(address(this), FundAdmin);
     }
     //Symmetic key for investor communication
@@ -105,6 +90,8 @@ contract CrystalCrowdFund{
     }
     
     modifier restrictedFundRaiser(){
+        bytes32 requestor = gethashID(msg.sender);
+        require(requestor==FundRaiserHashID,"Only Fund Raiser can access");
         _;
     }
     
@@ -112,11 +99,12 @@ contract CrystalCrowdFund{
         
     }
     
+    function gethashID(address name) public view returns (bytes32){
+        return keccak256(abi.encode(salt, name));
+    } 
     function getFundAdmin() public view returns (address){
         return FundAdmin;
     }
-    
-    function getSymKeyRecordLength() public view returns (uint){
-        return investorSymKeyRecords.length;
-    }
 }
+
+
