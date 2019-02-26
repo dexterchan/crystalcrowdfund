@@ -18,19 +18,24 @@ describe("deploy funding contract",()=>{
     let fundRaiser;
     let fundAdmin;
     let admin;
+    let nobody;
     var contractName;
     let fundAddress;
     let fundContractABI;
     const initCredit=1000000;
+    const abstract="testing the first fund";
+    const url="http://abc.com";
+    let docHash;
+    let symHash;
     beforeEach(async()=>{
         //await web3.eth.getAccounts() not working with 1.0.0.46beta
         accounts = await web3.eth.getAccounts();
         fundAdmin = accounts[1];
         fundRaiser=accounts[2];
         admin = accounts[0];
-        
+        nobody = accounts[3];
         const {contractNameLst,contractABI,contractByteCode}=parseSolcCompiledContract(compiledContract);
-        //console.log(contractNameLst);
+        console.log(contractNameLst);
         fundContractABI = contractABI["CrystalCrowdFund"];
         const deployContractFunc = async (contractName, actor, gas) => {
             assert(contractNameLst.indexOf(contractName) >= 0);
@@ -68,19 +73,60 @@ describe("deploy funding contract",()=>{
             from: fundAdmin
             , gas:6541353
         });
+
+        const salt=await Utility.methods.getSalt().call();
+        assert (salt.length>0);
+        docHash = await Utility.methods.gethashString(salt,"abcd").call();
+        assert(docHash.length>0);
+        symHash= "0x"+crypto.randomBytes(RSAAsyncSize).toString('hex');;
         
     });
     
+    it("should reject funding contract creation if fund admin is non-member",async()=>{
+
+        try{
+            const retObj=await fundFactory.methods.createFund(
+                fundRaiser
+                ,abstract
+                , url
+                ,docHash
+                , symHash
+                )
+                .send({from: nobody
+                    ,  gas:6541353
+                });
+            throw new Error("NonMemberException"); 
+        }catch(ex){
+            if(ex.message == "NonMemberException"){
+                throw ex;
+            }
+            assert(ex.message.match(/Not found the member/)!=null);
+        }
+    });
+
+    it("should reject funding contract creation if fund raiser is non-member",async()=>{
+
+        try{
+            const retObj=await fundFactory.methods.createFund(
+                nobody
+                ,abstract
+                , url
+                ,docHash
+                , symHash
+                )
+                .send({from: fundAdmin
+                    ,  gas:6541353
+                });
+            throw new Error("NonMemberException"); 
+        }catch(ex){
+            if(ex.message == "NonMemberException"){
+                throw ex;
+            }
+            assert(ex.message.match(/Not found the member/)!=null);
+        }
+    });
     it("should return a funding contract",async()=>{
-        const abstract="testing the first fund";
-        const url="http://abc.com";
         
-        //const docHash=await Utility.methods.gethashString(Buffer.from("abcd").toString("hex"),"abcd").call();
-        const salt=await Utility.methods.getSalt().call();
-        assert (salt.length>0);
-        const docHash = await Utility.methods.gethashString(salt,"abcd").call();
-        assert(docHash.length>0);
-        const symHash= "0x"+crypto.randomBytes(RSAAsyncSize).toString('hex');;
         
         const retObj=await fundFactory.methods.createFund(
             fundRaiser

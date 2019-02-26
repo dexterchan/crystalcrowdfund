@@ -1,6 +1,7 @@
 pragma solidity >=0.4.22 <0.6.0;
 import './MemberBoard.sol';
 import './utility.sol';
+import './StablecoinV2.sol';
 /*
 Note 1
 In response to Europe Union - General Data Protection Regulation (GDPR), 
@@ -37,7 +38,10 @@ contract CrystalCrowdFundFactory{
         ,bytes32 _dochash
         , bytes32 symmetricKeyHashCode
         ) public returns(CrystalCrowdFund){
-        //require( memberMap[msg.sender]>0,"Only member can create project");
+        
+        require(memberBoard.getMember(msg.sender)>=0,"Only member can access");
+        require(memberBoard.getMember(_fundRaiser)>=0,"Only member can be fund raiser");
+        
         CrystalCrowdFund  newFund=new CrystalCrowdFund(
             _fundRaiser
             ,_abstract

@@ -62,12 +62,13 @@ describe("Run Member Board",()=>{
                 , gas:368491
             });
             
-            throw new Error("ExceptNonAdminRun");
+            throw new Error("NonAdminRunException");
         }catch(ex){
-            if(ex.message == "ExceptNonAdminRun"){
+            if(ex.message == "NonAdminRunException"){
                 throw ex;
             }
-            assert(true);
+            
+            assert(ex.message.match(/Only manager can access/)!=null);
         }
     });
     it("should reject double insertion of member", async()=>{
@@ -77,12 +78,12 @@ describe("Run Member Board",()=>{
                 , gas:368491
             });
             
-            throw new Error("ExceptDoubleInsertion");
+            throw new Error("DoubleInsertionException");
         }catch(ex){
-            if(ex.message == "ExceptDoubleInsertion"){
+            if(ex.message == "DoubleInsertionException"){
                 throw ex;
             }
-            assert(true);
+            assert(ex.message.match(/has been registered once/)!=null);
         }
     });
 
