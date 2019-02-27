@@ -10,6 +10,7 @@ const parseSolcCompiledContract = require("../ethereum/ParseSolcCompiledContract
 
 
 let accounts;
+const contractName="StablecoinV2";
 
 describe("Run Stablecoin",()=>{
     let fundRaiser;
@@ -25,7 +26,6 @@ describe("Run Stablecoin",()=>{
         admin = accounts[0];
         nobody = accounts[3];
         const {contractNameLst,contractABI,contractByteCode}=parseSolcCompiledContract(compiledContract);
-        const contractName="StablecoinV2";
         StableCoin=await new web3.eth.Contract(contractABI[contractName])
         .deploy({ data: contractByteCode[contractName],
             arguments: [ initcoin ] 
@@ -49,6 +49,9 @@ describe("Run Stablecoin",()=>{
             }
         );
     };
+    const checkBalance=async(acc)=>{
+        return StableCoin.methods.balanceOf(acc).call();
+    }
 
     it("should return error if user overdraft balance",async ()=>{
         try{
@@ -60,6 +63,19 @@ describe("Run Stablecoin",()=>{
             }
             assert(ex.message.match(/return false if specified value is less than/i));
         }
+    });
+
+    it("should transfer amount with correct balance",async ()=>{
+        
+            const amt = initcoin/10;
+            const recinitBalance = await checkBalance(fundRaiser);
+            const sendinitBalance = await checkBalance(admin);
+            await transferCoinFunc(admin,fundRaiser,amt);
+            const recfinalBalance = await checkBalance(fundRaiser);
+            const sendfinalBalance= await checkBalance(admin);
+            assert ((recfinalBalance-recinitBalance)==amt);
+            assert ((sendinitBalance-sendfinalBalance)==amt);
+        
     });
 
     describe("frozen the coin",async()=>{
