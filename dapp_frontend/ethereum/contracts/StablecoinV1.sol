@@ -35,6 +35,10 @@ contract StablecoinV1 {
   //owner of this contract
   address public owner;
   
+  //Maintain the state of frozen
+  //If frozen, no transfer activities allowed except redemption
+  bool public frozen;
+  
   // 3. Constructor sets the initial supply as total available
   constructor (uint256 initSupply) public {
     // constructor
@@ -45,10 +49,13 @@ contract StablecoinV1 {
     // Set the sender as the owner of all the initial set of tokens
     // Declare the balances mapping
     balances[msg.sender] = totalSupply;
+    
+    
+    frozen=false;
   }
 
   // 5. transfer
-  function transfer(address _to, uint256 _value) public returns (bool success) {
+  function transfer(address _to, uint256 _value) public checkFrozen returns (bool success) {
     // Return false if specified value is less than the balance available
     require((_value > 0  && balances[msg.sender] > _value), "Return false if specified value is less than the balance available");
 
@@ -68,6 +75,23 @@ contract StablecoinV1 {
   // Anyone can call this constant function to check the balance of tokens for an address
   function balanceOf(address _someone) public view returns (uint256 balance){
     return balances[_someone];
+  }
+  
+  //8. switch for frozen
+  modifier checkFrozen(){
+        require(!frozen,"Coin is frozen");
+        _;
+  }
+  
+  modifier restrictOwner(){
+      require(owner==msg.sender,"Only owner allowed");
+        _;
+  }
+  
+  //9. frozenCoin()
+  function frozeCoin() public restrictOwner{
+      require(!frozen, "Coin frozen already");
+      frozen=true;
   }
 
   // Fallback function

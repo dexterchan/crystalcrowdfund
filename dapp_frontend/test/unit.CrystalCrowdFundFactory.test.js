@@ -35,7 +35,7 @@ describe("deploy funding contract",()=>{
         admin = accounts[0];
         nobody = accounts[3];
         const {contractNameLst,contractABI,contractByteCode}=parseSolcCompiledContract(compiledContract);
-        console.log(contractNameLst);
+        //console.log(contractNameLst);
         fundContractABI = contractABI["CrystalCrowdFund"];
         const deployContractFunc = async (contractName, actor, gas) => {
             assert(contractNameLst.indexOf(contractName) >= 0);
@@ -46,7 +46,6 @@ describe("deploy funding contract",()=>{
                     , gas
                 });
         }
-
         
         contractName="utility";
         Utility = await deployContractFunc(contractName,admin,368491);
@@ -83,7 +82,6 @@ describe("deploy funding contract",()=>{
     });
     
     it("should reject funding contract creation if fund admin is non-member",async()=>{
-
         try{
             const retObj=await fundFactory.methods.createFund(
                 fundRaiser
@@ -105,7 +103,6 @@ describe("deploy funding contract",()=>{
     });
 
     it("should reject funding contract creation if fund raiser is non-member",async()=>{
-
         try{
             const retObj=await fundFactory.methods.createFund(
                 nobody
@@ -126,8 +123,6 @@ describe("deploy funding contract",()=>{
         }
     });
     it("should return a funding contract",async()=>{
-        
-        
         const retObj=await fundFactory.methods.createFund(
             fundRaiser
             ,abstract
@@ -139,7 +134,6 @@ describe("deploy funding contract",()=>{
                 ,  gas:6541353
             });
         assert(retObj!=undefined);
-
         
         const numFund=await fundFactory.methods.getNumberOfFunds().call();
         assert(numFund==1);

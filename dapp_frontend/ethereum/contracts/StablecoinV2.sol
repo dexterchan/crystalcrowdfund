@@ -42,7 +42,7 @@ contract StablecoinV2 is StablecoinV1{
 
   // Transfer from
   // B transfer _value from A's account to C' account
-  function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
+  function transferFrom(address _from, address _to, uint256 _value) public checkFrozen returns (bool success) {
     // Multiple if statements to make it easy to understand
     // a) b) c) below may be combined with && in one statememnt
 
