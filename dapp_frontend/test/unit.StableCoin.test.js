@@ -49,6 +49,19 @@ describe("Run Stablecoin",()=>{
             }
         );
     };
+
+    it("should return error if user overdraft balance",async ()=>{
+        try{
+            await transferCoinFunc(admin,fundRaiser,initcoin*10);
+            throw new Error("ODException");
+        }catch(ex){
+            if(ex.message=="ODException"){
+                throw ex;
+            }
+            assert(ex.message.match(/return false if specified value is less than/i));
+        }
+    });
+
     describe("frozen the coin",async()=>{
         beforeEach(async()=>{
 
@@ -57,7 +70,6 @@ describe("Run Stablecoin",()=>{
         it("should return error if it is not admin",async()=>{
             try{
                 await frozenCoinFunc(nobody);
-                console.log("not working");
                 const frozenState = await StableCoin.methods.frozen().call();
                 assert(frozenState);
                 throw new Error("adminException");
