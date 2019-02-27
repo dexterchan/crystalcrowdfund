@@ -35,21 +35,28 @@ describe("Run Stablecoin",()=>{
             , gas:6541353
         });
     });
-
-
+    const frozenCoinFunc=(p)=>{
+        return StableCoin.methods.frozeCoin().send({
+            from: p
+            , gas:100000
+        });
+    }
+    const transferCoinFunc=(from,to,amt)=>{
+        return StableCoin.methods.transfer(to,amt).send(
+            {
+                from: from,
+                gas:300000
+            }
+        );
+    };
     describe("frozen the coin",async()=>{
         beforeEach(async()=>{
 
         });
-        const frozenCoin=(p)=>{
-            return StableCoin.methods.frozeCoin().send({
-                from: p
-                , gas:100000
-            });
-        }
+        
         it("should return error if it is not admin",async()=>{
             try{
-                await frozenCoin(nobody);
+                await frozenCoinFunc(nobody);
                 console.log("not working");
                 const frozenState = await StableCoin.methods.frozen().call();
                 assert(frozenState);
@@ -62,15 +69,17 @@ describe("Run Stablecoin",()=>{
                 assert(ex.message.match(/Only owner allowed/));
             }
         });
-        it("return error if user transfer a frozen coin",async()=>{
-            await frozenCoin(admin);
-            await StableCoin.methods.transfer(fundRaiser,100).send(
-                {
-                    from: admin,
-                    gas:300000
+        it("return error if user transfers a frozen coin",async()=>{
+            await frozenCoinFunc(admin);
+            try{
+                await transferCoinFunc(admin,fundRaiser,1000);
+                throw new Error("transferFrozenCoinException");
+            }catch(ex){
+                if(ex.message=="transferFrozenCoinException"){
+                    throw ex;
                 }
-            );
-            console.log("transfered");
+                assert(ex.message.match(/Coin is frozen/));
+            }
         });
 
     });
