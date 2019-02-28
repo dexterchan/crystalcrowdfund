@@ -1,6 +1,7 @@
 pragma solidity >=0.4.22 <0.6.0;
 import './MemberBoard.sol';
 import './utility.sol';
+import './StablecoinV2.sol';
 /*
 Note 1
 In response to Europe Union - General Data Protection Regulation (GDPR), 
@@ -16,6 +17,7 @@ Instead, symmetric encrypted cipher or hash are still acceptable.
 
 contract CrystalCrowdFundFactory{
     MemberBoard memberBoard;
+    
     address public myManager;
     bytes32 public salt;
     CrystalCrowdFund[] public deployedFunds;
@@ -30,16 +32,34 @@ contract CrystalCrowdFundFactory{
         memberBoard=_m;
     }
     
-    function createFund(address _fundRaiser, string memory _abstract, string memory _url,bytes32 _dochash, bytes32 symmetricKeyHashCode) public returns(CrystalCrowdFund){
-        //require( memberMap[msg.sender]>0,"Only member can create project");
+    function createFund(
+        StablecoinV2 _moneyPool
+        ,address _fundRaiser
+        ,string memory _abstract
+        , string memory _url
+        ,bytes32 _dochash
+        , bytes32 symmetricKeyHashCode
+        ) public returns(CrystalCrowdFund){
+        
         require(memberBoard.getMember(msg.sender)>=0,"Only member can access");
         require(memberBoard.getMember(_fundRaiser)>=0,"Only member can be fund raiser");
-        CrystalCrowdFund  newFund=new CrystalCrowdFund(_fundRaiser,_abstract,_url, _dochash,symmetricKeyHashCode);
+        
+        CrystalCrowdFund  newFund=new CrystalCrowdFund(
+            _moneyPool
+            ,_fundRaiser
+            ,_abstract
+            ,_url
+            , _dochash
+            ,symmetricKeyHashCode
+            );
         deployedFunds.push(newFund);
         return newFund;
     }
     function getDeployedFunds() public view returns (CrystalCrowdFund[] memory){
         return deployedFunds;
+    }
+    function getNumberOfFunds() public view returns (uint256){
+        return deployedFunds.length;
     }
     
 }
@@ -47,33 +67,38 @@ contract CrystalCrowdFundFactory{
 contract CrystalCrowdFund{
      //investor should be in member board before joining
     
-    
+    StablecoinV2 moneyPool;
     address public FundAdmin;
     bytes32 public FundRaiserHashID;
     bytes32 public salt;
-    string public myabstract;
+    string public fundabstract;
     string public url;
     bytes32 public dochash;
     
     //Events
     event Created(address _contractAddress, address _from);
 
-    constructor(address _fundRaiser, string memory _abstract, string memory _url, bytes32 _dochash, bytes32 _symkeyHashCode  ) public{
-        FundAdmin= msg.sender;
+    constructor(
+                 StablecoinV2 _moneyPool
+                ,address _fundRaiser
+                ,string memory _abstract
+                ,string memory _url
+                ,bytes32 _dochash
+                ,bytes32 _symkeyHashCode  
+                ) public{
+        moneyPool = _moneyPool;
         salt=keccak256(abi.encode(block.difficulty,now));
-        FundRaiserHashID=gethashID(_fundRaiser);
-        
-        myabstract=_abstract;
-        url=_url;
+        FundRaiserHashID = keccak256(abi.encode(salt, _fundRaiser));
+        FundAdmin= msg.sender;
+        fundabstract=_abstract;
         dochash=_dochash;
-        
+        url=_url;
+
         SymKeyRecord memory symkey= SymKeyRecord({
             hashID:_symkeyHashCode,
             date: now}
             );
         investorSymKeyRecords.push(symkey);
-        
-        
         emit Created(address(this), FundAdmin);
     }
     //Symmetic key for investor communication
@@ -90,8 +115,6 @@ contract CrystalCrowdFund{
     }
     
     modifier restrictedFundRaiser(){
-        bytes32 requestor = gethashID(msg.sender);
-        require(requestor==FundRaiserHashID,"Only Fund Raiser can access");
         _;
     }
     
@@ -99,12 +122,11 @@ contract CrystalCrowdFund{
         
     }
     
-    function gethashID(address name) public view returns (bytes32){
-        return keccak256(abi.encode(salt, name));
-    } 
     function getFundAdmin() public view returns (address){
         return FundAdmin;
     }
+    
+    function getSymKeyRecordLength() public view returns (uint){
+        return investorSymKeyRecords.length;
+    }
 }
-
-

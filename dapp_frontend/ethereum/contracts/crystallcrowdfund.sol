@@ -1,7 +1,7 @@
 pragma solidity >=0.4.22 <0.6.0;
 import './MemberBoard.sol';
 import './utility.sol';
-import './StablecoinV2.sol';
+import './StablecoinV3.sol';
 /*
 Note 1
 In response to Europe Union - General Data Protection Regulation (GDPR), 
@@ -32,7 +32,8 @@ contract CrystalCrowdFundFactory{
     }
     
     function createFund(
-        address _fundRaiser
+        StablecoinV3 _moneyPool
+        ,address _fundRaiser
         ,string memory _abstract
         , string memory _url
         ,bytes32 _dochash
@@ -43,7 +44,8 @@ contract CrystalCrowdFundFactory{
         require(memberBoard.getMember(_fundRaiser)>=0,"Only member can be fund raiser");
         
         CrystalCrowdFund  newFund=new CrystalCrowdFund(
-            _fundRaiser
+            _moneyPool
+            ,_fundRaiser
             ,_abstract
             ,_url
             , _dochash
@@ -64,7 +66,7 @@ contract CrystalCrowdFundFactory{
 contract CrystalCrowdFund{
      //investor should be in member board before joining
     
-    
+    StablecoinV3 moneyPool;
     address public FundAdmin;
     bytes32 public FundRaiserHashID;
     bytes32 public salt;
@@ -76,12 +78,14 @@ contract CrystalCrowdFund{
     event Created(address _contractAddress, address _from);
 
     constructor(
-                address _fundRaiser
+                StablecoinV3 _m
+                ,address _fundRaiser
                 ,string memory _abstract
                 ,string memory _url
                 ,bytes32 _dochash
                 ,bytes32 _symkeyHashCode  
                 ) public{
+        moneyPool=_m;
         salt=keccak256(abi.encode(block.difficulty,now));
         FundRaiserHashID = keccak256(abi.encode(salt, _fundRaiser));
         FundAdmin= msg.sender;
@@ -123,5 +127,15 @@ contract CrystalCrowdFund{
     
     function getSymKeyRecordLength() public view returns (uint){
         return investorSymKeyRecords.length;
+    }
+
+    function depositStableCoin(uint amount) public {
+        moneyPool.transfer(address(this),amount);
+    }
+    function getAddress() public view returns ( address){
+        return address(this);
+    }
+    function getMyBalance() public view returns(uint256){
+        return moneyPool.balanceOf( address(this));
     }
 }

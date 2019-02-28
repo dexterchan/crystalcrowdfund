@@ -10,7 +10,7 @@ const parseSolcCompiledContract = require("../ethereum/ParseSolcCompiledContract
 
 
 let accounts;
-const contractName="StablecoinV2";
+const contractName="StablecoinV3";
 
 describe("Run Stablecoin",()=>{
     let fundRaiser;
@@ -26,6 +26,7 @@ describe("Run Stablecoin",()=>{
         admin = accounts[0];
         nobody = accounts[3];
         const {contractNameLst,contractABI,contractByteCode}=parseSolcCompiledContract(compiledContract);
+        //console.log(contractNameLst);
         StableCoin=await new web3.eth.Contract(contractABI[contractName])
         .deploy({ data: contractByteCode[contractName],
             arguments: [ initcoin ] 
