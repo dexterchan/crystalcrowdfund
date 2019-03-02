@@ -88,7 +88,7 @@ describe("Crowd funding contract", () => {
       from: admin,
       gas: 368491
     });
-    contractName = "StablecoinV3";
+    contractName = "Stablecoin";
     StableCoin=await new web3.eth.Contract(contractABI[contractName])
         .deploy({ data: contractByteCode[contractName],
             arguments: [ initcoin ] 

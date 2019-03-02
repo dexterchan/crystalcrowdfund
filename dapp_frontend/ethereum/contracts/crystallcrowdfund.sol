@@ -1,7 +1,7 @@
 pragma solidity >=0.4.22 <0.6.0;
 import './MemberBoard.sol';
 import './utility.sol';
-import './StablecoinV3.sol';
+//import './StablecoinV3.sol';
 import './Stablecoin.sol';
 /*
 Note 1
@@ -33,7 +33,7 @@ contract CrystalCrowdFundFactory{
     }
     
     function createFund(
-        StablecoinV3 _moneyPool
+        Stablecoin _moneyPool
         ,address _fundRaiser
         ,string memory _abstract
         , string memory _url
@@ -67,7 +67,7 @@ contract CrystalCrowdFundFactory{
 contract CrystalCrowdFund{
      //investor should be in member board before joining
     
-    StablecoinV3 moneyPool;
+    Stablecoin moneyPool;
     address public FundAdmin;
     bytes32 public FundRaiserHashID;
     bytes32 public salt;
@@ -79,7 +79,7 @@ contract CrystalCrowdFund{
     event Created(address _contractAddress, address _from);
 
     constructor(
-                StablecoinV3 _m
+                Stablecoin _m
                 ,address _fundRaiser
                 ,string memory _abstract
                 ,string memory _url
@@ -131,7 +131,7 @@ contract CrystalCrowdFund{
     }
 
     function depositStableCoin(uint amount) public {
-        StablecoinV3(moneyPool).transfer(address(this),amount);
+        Stablecoin(moneyPool).transfer(address(this),amount);
     }
     function getAddress() public view returns ( address){
         return address(this);
