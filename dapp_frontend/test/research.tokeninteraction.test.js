@@ -48,10 +48,11 @@ describe("Run token interaction",()=>{
         assert(amt==initial);
     });
     it("check token transfer inside Mytoken",async()=>{
-        await MyToken.methods.transfer(nobody,1).send({
+        const ret=await MyToken.methods.transfer(nobody,1).send({
             from: admin
             , gas:600000
         });
+        //console.log("transfer return:",ret);
         const amt=await MyToken.methods.balanceOf(nobody).call();
         assert(1==amt);
     });
@@ -63,11 +64,23 @@ describe("Run token interaction",()=>{
             from: admin
             , gas:600000
         });*/
+        /*
         await tokenInteract.methods.deposit(1).send({
             from: admin
             , gas:600000
-        });
+        });*/
 
+    });
+    it("return exception when call frozeCoin() function with other function ",async()=>{
+        try{
+        await MyToken.methods.freeze().send({
+            from: admin,
+            gas:600000
+        });
+        }catch(ex){
+            assert(ex.message.match(/owner required/));
+            console.log(ex.message);
+        }
     });
     
 }

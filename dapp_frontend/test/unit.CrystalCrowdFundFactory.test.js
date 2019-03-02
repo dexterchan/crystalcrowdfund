@@ -207,7 +207,7 @@ describe("Crowd funding contract", () => {
           fund = new web3.eth.Contract(fundContractABI, fundAddress);
       })
 
-    it("should return error if stablecoin failed to transfer", async()=>{
+    it("should return error if stablecoin directly send to Contract", async()=>{
         await StableCoin.methods.transfer (fund.options.address,investAmt).send({
             from: investorA,
             gas: 368491
@@ -218,6 +218,19 @@ describe("Crowd funding contract", () => {
         
         assert( (await fund.methods.getMyBalance().call())==investAmt);
           
+        try{
+          const startBalance =  await checkBalance(nobody);
+          await StableCoin.methods.transfer(nobody, investAmt).send({
+            from: fund.options.address,
+            gas: 600000
+          })
+          const endBalance = await checkBalance(nobody);
+          assert ( (endBalance-startBalance)==investAmt);
+          throw new Error("SmartContractTookERC20");
+        }catch(ex){
+          assert (ex.message.match(/sender account not recognized/));
+          
+        }
         /*
         await fund.methods.depositStableCoin(investAmt).send({
             from: investorA,

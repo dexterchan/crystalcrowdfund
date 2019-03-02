@@ -10,7 +10,7 @@ const parseSolcCompiledContract = require("../ethereum/ParseSolcCompiledContract
 
 
 let accounts;
-const contractName="StablecoinV3";
+const contractName="Stablecoin";
 
 describe("Run Stablecoin",()=>{
     let fundRaiser;
@@ -94,8 +94,8 @@ describe("Run Stablecoin",()=>{
                 if(ex.message=="adminException"){
                     throw ex;
                 }
-                //console.log(ex.message);
-                assert(ex.message.match(/Only owner allowed/));
+                console.log("read error:",ex.message);
+                assert(ex.message.match(/owner allowed/));
             }
         });
         it("return error if user transfers a frozen coin",async()=>{

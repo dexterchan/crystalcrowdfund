@@ -2,6 +2,7 @@ pragma solidity >=0.4.22 <0.6.0;
 import './MemberBoard.sol';
 import './utility.sol';
 import './StablecoinV3.sol';
+import './Stablecoin.sol';
 /*
 Note 1
 In response to Europe Union - General Data Protection Regulation (GDPR), 
