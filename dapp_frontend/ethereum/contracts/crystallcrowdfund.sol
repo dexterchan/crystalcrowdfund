@@ -130,7 +130,7 @@ contract CrystalCrowdFund{
     }
 
     function depositStableCoin(uint amount) public {
-        moneyPool.transfer(address(this),amount);
+        StablecoinV3(moneyPool).transfer(address(this),amount);
     }
     function getAddress() public view returns ( address){
         return address(this);

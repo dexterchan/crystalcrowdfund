@@ -213,15 +213,17 @@ describe("Crowd funding contract", () => {
             gas: 368491
           });
         assert( (await checkBalance(fund.options.address))== investAmt);
-        console.log(fund.options.address);
-        console.log(await fund.methods.getAddress().call() );
+        //console.log(fund.options.address);
+        //console.log(await fund.methods.getAddress().call() );
         
         assert( (await fund.methods.getMyBalance().call())==investAmt);
           
+        /*
         await fund.methods.depositStableCoin(investAmt).send({
             from: investorA,
             gas: 668491
           });
+          */
     });
   });
   
