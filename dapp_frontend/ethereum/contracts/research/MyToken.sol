@@ -30,23 +30,27 @@ contract MyToken is ERC20 {
         //the caller became the contract itself instead of end user account
         frozeCoin();
     }
+    function transfer(address _to, uint256 _value) public restrictOwner returns (bool success) {
+        _transfer(msg.sender, _to, _value);
+        return true;
+    }
     
+    modifier restrictOwner(){
+        require(owner==msg.sender,"owner required");
+            _;
+    }
+
     modifier checkFrozen(){
             require(!frozen,"Coin is frozen");
             _;
     }
   
-    modifier restrictOwner(){
-        require(owner==msg.sender,"owner required");
-            _;
-    }
+    
   
     
 
-    /*
-    function transfer(address _to, uint256 _value) public checkFrozen returns (bool success) {
-           return (ERC20 (this)).transfer(_to,_value);
-    }*/
+    
+    
     /*
     function tran (address _to, uint256 _value) public checkFrozen returns (bool success) {
         return this.transfer(_to,_value);
