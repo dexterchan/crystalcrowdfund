@@ -5,7 +5,8 @@ import "./ERC20/ERC20.sol";
 contract Stablecoin is ERC20 {
     string public  name = "Stable Coin Contract USD";
     string public  symbol = "SCUSD";
-
+    uint8  public constant decimals = 2;
+    
     bool public frozen;
     address public owner;
     using SafeMath for uint256;

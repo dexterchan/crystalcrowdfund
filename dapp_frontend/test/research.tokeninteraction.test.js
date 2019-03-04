@@ -71,16 +71,24 @@ describe("Run token interaction",()=>{
         });*/
 
     });
-    it("return exception when call frozeCoin() function with other function ",async()=>{
+    it("return exception when call this.frozeCoin() function with other function ",async()=>{
         try{
         await MyToken.methods.freeze().send({
             from: admin,
             gas:600000
         });
+        throw new Error("intercallexception");
         }catch(ex){
             assert(ex.message.match(/owner required/));
             console.log(ex.message);
         }
+    });
+    it("happy path when call frozeCoin() function with other function without this",async()=>{
+        await MyToken.methods.freezeWithoutThis().send({
+            from: admin,
+            gas:600000
+        });
+        
     });
     
 }

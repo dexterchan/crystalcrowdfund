@@ -24,6 +24,12 @@ contract MyToken is ERC20 {
         //the caller became the contract itself instead of end user account
         this.frozeCoin();
     }
+    function freezeWithoutThis() public {
+        require(owner==msg.sender,"owner required");
+        require(!frozen, "Coin freeze");
+        //the caller became the contract itself instead of end user account
+        frozeCoin();
+    }
     
     modifier checkFrozen(){
             require(!frozen,"Coin is frozen");
