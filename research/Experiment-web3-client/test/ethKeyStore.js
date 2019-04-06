@@ -12,16 +12,16 @@ const keythereum = require("keythereum");
 let privateKey;
 let gethAccount;
 const ALLOW_TIMEOUT = 1000000;
+let privateKeyStr =
+  "c703257cca45ec4a84a86b2803865b09973cfca779a56f240cc84c1bf3514ac2";
+let acctStr = "0xbd70ccc1ce2ee08f1765714c72073dbaa5f4d7ea";
+privateKeyStr =
+  "07845e6ae3e433629d905dbff2006756925d90e77baac0447950a25801fd6554";
+acctStr = "0xa19468214fe24914f885a1bde7d43e9f223cf5c4";
 beforeEach(() => {
   //const privateKeyBuffer = crypto.randomBytes(32); //256 bit private key
-  privateKey = Buffer.from(
-    "c703257cca45ec4a84a86b2803865b09973cfca779a56f240cc84c1bf3514ac2",
-    "hex"
-  ).toString("hex");
-  gethAccount = Buffer.from(
-    "0xbd70ccc1ce2ee08f1765714c72073dbaa5f4d7ea",
-    "hex"
-  ).toString("hex");
+  privateKey = Buffer.from(privateKeyStr, "hex").toString("hex");
+  gethAccount = Buffer.from(acctStr, "hex").toString("hex");
 });
 
 describe("Ethereum web3 private key store testing", () => {

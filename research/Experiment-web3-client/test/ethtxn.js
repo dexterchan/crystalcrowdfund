@@ -24,7 +24,7 @@ describe("Run eth transaction experiment", () => {
     }*/
     assert(accounts.length > 0);
   }).timeout(ALLOW_TIMEOUT);
-
+  /*
   it("throw exception when fail to unlock", async () => {
     const masterAcct = accounts[1];
     const slaveAcct = accounts[2];
@@ -42,7 +42,7 @@ describe("Run eth transaction experiment", () => {
       assert(ex.message.match(/decrypt key with given passphrase/));
     }
   }).timeout(ALLOW_TIMEOUT);
-
+*/
   it("do a unlock of account ", async () => {
     const masterAcct = accounts[1];
     const slaveAcct = accounts[2];
@@ -64,9 +64,10 @@ describe("Run eth transaction experiment", () => {
       assert(locked);
     }
   }).timeout(ALLOW_TIMEOUT);
+
   it("do a raw transaction with nouce ", async () => {
-    const masterAcct = accounts[1];
-    const slaveAcct = accounts[2];
+    const masterAcct = "0xbd70ccc1ce2ee08f1765714c72073dbaa5f4d7ea";
+    const slaveAcct = "0xa19468214fe24914f885a1bde7d43e9f223cf5c4";
     const password = "Abcd1234";
     const myData = "Hello!";
     const hexData = Buffer.from(myData).toString("hex");
@@ -81,7 +82,7 @@ describe("Run eth transaction experiment", () => {
       "gwei"
     );
     rawTxn = {
-      from: masterAcct,
+      //from: masterAcct,
       to: slaveAcct,
       gasPrice: web3.utils.toHex(mygasPrice),
       gasLimit: web3.utils.toHex(mygaslimit),
@@ -91,7 +92,7 @@ describe("Run eth transaction experiment", () => {
     };
 
     //sign the transaction
-    var getPrivateKey = (accountAddress, password) => {
+    var getPrivateKey = (accountAddress, pwd) => {
       const datadir = "/data";
       const address = accountAddress;
       // Synchronous
@@ -100,13 +101,13 @@ describe("Run eth transaction experiment", () => {
       // synchronous
       const rprivateKey =
         //"0x" +
-        keythereum.recover(password, keyObject);
+        keythereum.recover(pwd, keyObject);
       //.toString("hex");
 
       return rprivateKey;
     };
-    const privateKey = getPrivateKey(masterAcct, "Abcd1234");
-
+    const privateKey = getPrivateKey(masterAcct, password);
+    console.log("PrivateKey:", privateKey.toString("hex"));
     assert.equal(
       privateKey.toString("hex"),
       Buffer.from(
@@ -117,7 +118,24 @@ describe("Run eth transaction experiment", () => {
 
     const txn = new EthereumTx(rawTxn);
 
-    txn.sign(Buffer.from(privateKey));
+    txn.sign(privateKey);
     const serializedTxn = txn.serialize();
+    const Keccak = require("keccak");
+    //Ethereum is using Keccak to hash the transaction
+    const txnHash = Buffer.from(
+      Keccak("keccak256")
+        .update(serializedTxn)
+        .digest("hex"),
+      "hex"
+    ).toString("hex");
+
+    const receipt = await web3.eth.sendSignedTransaction(
+      "0x" + serializedTxn.toString("hex")
+    );
+    //.on("receipt", console.log);
+    //console.log("receipt", receipt);
+
+    //console.log(txnHash);
+    assert.equal(receipt.transactionHash, "0x" + txnHash);
   }).timeout(ALLOW_TIMEOUT);
 });
