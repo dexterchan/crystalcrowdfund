@@ -24,7 +24,7 @@ describe("Run eth transaction experiment", () => {
     }*/
     assert(accounts.length > 0);
   }).timeout(ALLOW_TIMEOUT);
-  /*
+
   it("throw exception when fail to unlock", async () => {
     const masterAcct = accounts[1];
     const slaveAcct = accounts[2];
@@ -42,7 +42,7 @@ describe("Run eth transaction experiment", () => {
       assert(ex.message.match(/decrypt key with given passphrase/));
     }
   }).timeout(ALLOW_TIMEOUT);
-*/
+
   it("do a unlock of account ", async () => {
     const masterAcct = accounts[1];
     const slaveAcct = accounts[2];
@@ -66,12 +66,15 @@ describe("Run eth transaction experiment", () => {
   }).timeout(ALLOW_TIMEOUT);
 
   it("do a raw transaction with nouce ", async () => {
-    const masterAcct = "0xbd70ccc1ce2ee08f1765714c72073dbaa5f4d7ea";
-    const slaveAcct = "0xa19468214fe24914f885a1bde7d43e9f223cf5c4";
+    const masterAcct = accounts[1];
+    const slaveAcct = accounts[2];
     const password = "Abcd1234";
     const myData = "Hello!";
-    const hexData = Buffer.from(myData).toString("hex");
-    assert.equal(Buffer.from(hexData, "hex").toString("utf8"), myData);
+    const hexData = web3.utils.toHex(myData); //Buffer.from(myData).toString("hex");
+    assert.equal(
+      Buffer.from(hexData.substr(2), "hex").toString("utf8"),
+      myData
+    );
 
     const amount = "0.01";
 
@@ -107,7 +110,7 @@ describe("Run eth transaction experiment", () => {
       return rprivateKey;
     };
     const privateKey = getPrivateKey(masterAcct, password);
-    console.log("PrivateKey:", privateKey.toString("hex"));
+    //console.log("PrivateKey:", privateKey.toString("hex"));
     assert.equal(
       privateKey.toString("hex"),
       Buffer.from(
