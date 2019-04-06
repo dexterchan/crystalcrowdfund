@@ -124,23 +124,51 @@ describe("deep dive private key retrieval from keystore object", () => {
 
     password = str2buf(password, "utf8");
 
-    let Scrypt = require("../lib/scrypt");
-    scrypt = Scrypt(scryptParm.memory);
+    const getDerivedKey1 = (memory, password, salt, n, r, p, dklen) => {
+      let Scrypt = require("../lib/scrypt");
+      scrypt = Scrypt(memory);
 
-    keyDerived = Buffer.from(
-      scrypt.to_hex(
-        scrypt.crypto_scrypt(
-          password,
-          salt,
-          keyObjectCrypto.kdfparams.n,
-          keyObjectCrypto.kdfparams.r,
-          keyObjectCrypto.kdfparams.p,
-          keyObjectCrypto.kdfparams.dklen
-        )
-      ),
-      "hex"
+      const keyDerived = Buffer.from(
+        scrypt.to_hex(scrypt.crypto_scrypt(password, salt, n, r, p, dklen)),
+        "hex"
+      );
+      return keyDerived;
+    };
+    //https://www.npmjs.com/package/scrypt
+    const getDerivedKey2 = async (password, salt, n, r, p, dklen) => {
+      const scryptLib = require("scrypt");
+      const keyDerived2 = await scryptLib.hash(
+        password,
+        {
+          N: n,
+          r: r,
+          p: p
+        },
+        dklen,
+        salt
+      );
+      return keyDerived2;
+    };
+    /*
+    const keyDerived2 = getDerivedKey1(
+      scryptParm.memory,
+      password,
+      salt,
+      keyObjectCrypto.kdfparams.n,
+      keyObjectCrypto.kdfparams.r,
+      keyObjectCrypto.kdfparams.p,
+      keyObjectCrypto.kdfparams.dklen
+    );*/
+    keyDerived = await getDerivedKey2(
+      password,
+      salt,
+      keyObjectCrypto.kdfparams.n,
+      keyObjectCrypto.kdfparams.r,
+      keyObjectCrypto.kdfparams.p,
+      keyObjectCrypto.kdfparams.dklen
     );
 
+    //assert.equal(keyDerived2.toString("hex"), keyDerived.toString("hex"));
     const mac = getMAC(keyDerived, ciphertext);
     assert(mac, keyObjectCrypto.mac);
     const key = keyDerived.slice(0, 16); //take first 16 bytes
