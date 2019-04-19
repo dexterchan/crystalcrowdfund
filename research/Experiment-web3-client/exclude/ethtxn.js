@@ -5,6 +5,7 @@ const web3 = require("../ethClient/web3")(url);
 const assert = require("assert");
 const EthereumTx = require("ethereumjs-tx");
 const keythereum = require("keythereum");
+const debug = require("debug")("app:debug");
 
 let accounts;
 const ALLOW_TIMEOUT = 1000000;
@@ -120,8 +121,9 @@ describe("Run eth transaction experiment", () => {
     );
 
     const txn = new EthereumTx(rawTxn);
-
+    //debug(txn.from);
     txn.sign(privateKey);
+    debug(txn.from);
     const serializedTxn = txn.serialize();
     const Keccak = require("keccak");
     //Ethereum is using Keccak to hash the transaction
