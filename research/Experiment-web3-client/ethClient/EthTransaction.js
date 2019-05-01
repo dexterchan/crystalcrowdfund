@@ -137,6 +137,7 @@ class EthTransaction {
     } else {
       this._chainId = chainId || data.chainId || 0;
     }
+    console.log(`chain id:${this._chainId}`);
   }
 
   hash(option) {
@@ -146,6 +147,9 @@ class EthTransaction {
 
     const vAndChainIdMeetEIP155Conditions =
       v === this._chainId * 2 + 35 || v === this._chainId * 2 + 36;
+    console.log(
+      `vAndChainIdMeetEIP155Conditions:${vAndChainIdMeetEIP155Conditions}`
+    );
     if (vAndChainIdMeetEIP155Conditions && onEIP155BlockOrLater) {
       const raw = this.raw.slice();
       this.v = this._chainId;

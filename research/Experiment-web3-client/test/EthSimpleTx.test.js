@@ -5,6 +5,7 @@ const assert = require("assert");
 const BN = require("bn.js");
 let accounts;
 const ALLOW_TIMEOUT = 1000000;
+const keythereum = require("keythereum");
 
 const {
   stripHexPrefix,
@@ -34,6 +35,22 @@ describe("EthSimpleTxn run txn", () => {
   let myData;
   let hexData;
   let amountWei;
+
+  const getPrivateKey = (accountAddress, pwd) => {
+    const datadir = "/data";
+    const address = accountAddress;
+    // Synchronous
+    const keyObject = keythereum.importFromFile(address, datadir);
+
+    // synchronous
+    const rprivateKey =
+      //"0x" +
+      keythereum.recover(pwd, keyObject);
+    //.toString("hex");
+
+    return rprivateKey;
+  };
+
   beforeEach(async () => {
     masterAcct = accounts[1];
     slaveAcct = accounts[2];
@@ -98,5 +115,11 @@ describe("EthSimpleTxn run txn", () => {
     /*
     console.log(`nouce:${txn.gasLimit.toString("hex")}`);
     console.log(`nouce:${typeof txn.gasLimit}`);*/
+  });
+
+  it("sign the txn", async () => {
+    const txn = new TXN();
+    txn.initialize(rawTxn);
+    const privateKey = getPrivateKey(masterAcct, password);
   });
 });

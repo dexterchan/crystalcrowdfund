@@ -1,11 +1,13 @@
 const rlp = require("rlp");
 const BN = require("bn.js");
 const assert = require("assert");
+const secp256k1 = require("secp256k1");
 const {
   stripHexPrefix,
   stripZeros,
   toBuffer,
-  padToEven
+  padToEven,
+  keccak256
 } = require("../utils/utility");
 // secp256k1n/2
 const N_DIV_2 = new BN(
@@ -181,6 +183,50 @@ class EthSimpleTxn {
       }
     }
   }
+
+  hash(option) {
+    let items;
+    const onEIP155BlockOrLater = true; //this._common.gteHardfork('spuriousDragon')
+
+    //bypass EIP155 here
+    /*
+    const v = ethUtil.bufferToInt(this.v);
+    const vAndChainIdMeetEIP155Conditions =
+      v === this._chainId * 2 + 35 || v === this._chainId * 2 + 36;
+    if (vAndChainIdMeetEIP155Conditions && onEIP155BlockOrLater) {
+      const raw = this.raw.slice();
+      this.v = this._chainId;
+      this.r = 0;
+      this.s = 0;
+      items = this.raw;
+      this.raw = raw;
+    } else */ {
+      items = this.raw.slice(0, 6);
+      //debug("raw:" + Buffer.from(this.raw).toString("hex"));
+    }
+
+    // create hash
+    return ethUtil.rlphash(items);
+  }
+
+  /*
+export const ecsign = function(
+  msgHash: Buffer,
+  privateKey: Buffer,
+  chainId?: number,
+): ECDSASignature {
+  const sig = secp256k1.sign(msgHash, privateKey)
+  const recovery: number = sig.recovery
+
+  const ret = {
+    r: sig.signature.slice(0, 32),
+    s: sig.signature.slice(32, 64),
+    v: chainId ? recovery + (chainId * 2 + 35) : recovery + 27,
+  }
+
+  return ret
+}
+  */
   constructor(data) {
     data = data || {};
   }
