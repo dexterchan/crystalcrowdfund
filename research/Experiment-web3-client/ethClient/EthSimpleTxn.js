@@ -1,7 +1,12 @@
 const rlp = require("rlp");
 const BN = require("bn.js");
 const assert = require("assert");
-const { stripHexPrefix, stripZeros, toBuffer } = require("../utils/utility");
+const {
+  stripHexPrefix,
+  stripZeros,
+  toBuffer,
+  padToEven
+} = require("../utils/utility");
 // secp256k1n/2
 const N_DIV_2 = new BN(
   "7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0",
@@ -36,57 +41,57 @@ class EthSimpleTxn {
         name: "nonce",
         length: 32,
         allowLess: true,
-        default: new Buffer([])
+        default: Buffer.from([])
       },
       {
         name: "gasPrice",
         length: 32,
         allowLess: true,
-        default: new Buffer([])
+        default: Buffer.from([]) //Buffer.from([])
       },
       {
         name: "gasLimit",
         alias: "gas",
         length: 32,
         allowLess: true,
-        default: new Buffer([])
+        default: Buffer.from([])
       },
       {
         name: "to",
         allowZero: true,
         length: 20,
-        default: new Buffer([])
+        default: Buffer.from([])
       },
       {
         name: "value",
         length: 32,
         allowLess: true,
-        default: new Buffer([])
+        default: Buffer.from([])
       },
       {
         name: "data",
         alias: "input",
         allowZero: true,
-        default: new Buffer([])
+        default: Buffer.from([])
       },
       {
         name: "v",
         allowZero: true,
-        default: new Buffer([0x1c])
+        default: Buffer.from([0x1c])
       },
       {
         name: "r",
         length: 32,
         allowZero: true,
         allowLess: true,
-        default: new Buffer([])
+        default: Buffer.from([])
       },
       {
         name: "s",
         length: 32,
         allowZero: true,
         allowLess: true,
-        default: new Buffer([])
+        default: Buffer.from([])
       }
     ];
   }

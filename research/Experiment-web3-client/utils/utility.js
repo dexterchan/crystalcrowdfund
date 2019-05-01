@@ -1,4 +1,5 @@
 const Keccak = require("keccak");
+const BN = require("bn.js");
 const isHex = str => {
   if (str.length % 2 === 0 && str.match(/^[0-9a-f]+$/i)) return true;
   return false;
@@ -83,6 +84,18 @@ module.exports.stripZeros = a => {
   return a;
 };
 
+function int2Hex(i) {
+  var hex = i.toString(16); // eslint-disable-line
+
+  return `0x${hex}`;
+}
+module.exports.int2Hex = int2Hex;
+
+const int2Buffer = i => {
+  const v = i.toString(16);
+  return Buffer.from(padToEven(v, "hex"));
+};
+module.exports.int2Buffer = int2Buffer;
 module.exports.toBuffer = v => {
   if (!Buffer.isBuffer(v)) {
     if (Array.isArray(v)) {
@@ -94,8 +107,7 @@ module.exports.toBuffer = v => {
         v = Buffer.from(v);
       }
     } else if (typeof v === "number") {
-      v = v.toString(16);
-      v = new Buffer(padToEven(v, "hex"));
+      v = int2Buffer(v);
     } else if (v === null || v === undefined) {
       v = Buffer.allocUnsafe(0);
     } else if (BN.isBN(v)) {
