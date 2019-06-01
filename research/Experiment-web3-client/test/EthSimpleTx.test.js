@@ -121,5 +121,5 @@ describe("EthSimpleTxn run txn", () => {
     const txn = new TXN();
     txn.initialize(rawTxn);
     const privateKey = getPrivateKey(masterAcct, password);
-  });
+  }).timeout(ALLOW_TIMEOUT);
 });
