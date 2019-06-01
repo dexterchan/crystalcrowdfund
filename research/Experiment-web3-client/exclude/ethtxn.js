@@ -122,6 +122,7 @@ describe("Run eth transaction experiment", () => {
 
     const txn = new EthereumTx(rawTxn);
     //debug(txn.from);
+    console.log("_chainId:" + txn._chainId);
     txn.sign(privateKey);
     debug(txn.from);
     const serializedTxn = txn.serialize();

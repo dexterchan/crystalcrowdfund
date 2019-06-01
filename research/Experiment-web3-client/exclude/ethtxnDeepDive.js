@@ -84,7 +84,7 @@ describe("Run deep dive eth transaction experiment", () => {
       value: web3.utils.toHex(web3.utils.toWei(amount, "ether")),
       data: hexData
     };
-    debug(rawTxn);
+    //debug(rawTxn);
 
     const privateKey = getPrivateKey(masterAcct, password);
 

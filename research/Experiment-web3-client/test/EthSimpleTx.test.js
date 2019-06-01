@@ -1,6 +1,10 @@
 let url = "http://localhost:8545";
+const rlp = require("rlp");
 const web3 = require("../ethClient/web3")(url);
 const TXN = require("../ethClient/EthSimpleTxn");
+
+const TXNC = require("../ethClient/EthTransaction");
+
 const assert = require("assert");
 const BN = require("bn.js");
 let accounts;
@@ -118,8 +122,46 @@ describe("EthSimpleTxn run txn", () => {
   });
 
   it("sign the txn", async () => {
+    const txnC = new TXNC(rawTxn);
+
     const txn = new TXN();
-    txn.initialize(rawTxn);
+    txn.initialize(rawTxn, url);
     const privateKey = getPrivateKey(masterAcct, password);
+
+    assert.equal(
+      privateKey.toString("hex"),
+      Buffer.from(
+        ("0x" + privateKey.toString("hex")).substr(2),
+        "hex"
+      ).toString("hex")
+    );
+    txnC.sign(privateKey);
+    txn.sign(privateKey);
+    //console.log("v:" + txn.v + ",type:" + typeof txn.v);
+
+    assert.notEqual(txn.v, null);
+    //assert.notEqual(txn.v.toString("hex"), Buffer.from([0x1c]).toString("hex"));
+    //console.log(txn.from.toString("hex"));
+    assert.equal(masterAcct.toLowerCase().substr(2), txn.from.toString("hex"));
+
+    //console.log("Compare s");
+    assert.equal(txnC.s.toString("hex"), txn.s.toString("hex"));
+    //console.log("Compare r");
+    assert.equal(txnC.r.toString("hex"), txn.r.toString("hex"));
+    //console.log("Compare v");
+
+    //console.log(txnC.v.toString("hex"));
+    //console.log("txnC.v:" + txnC.v + ",type:" + typeof txnC.v);
+    //console.log("txn.v:" + txn.v + ",type:" + typeof txn.v);
+    assert.equal(txnC.v.toString("hex"), txn.v.toString("hex"));
+    //rlpEncodedTxn = rlp.encode(txn.raw);
+
+    //const receipt = await web3.eth.sendSignedTransaction(
+    //  "0x" + rlpEncodedTxn.toString("hex")
+    //);
+    //console.log(txn.v);
+    //assert.notEqual(txn.from, undefined);
+
+    receipt = await txn.sendTransaction();
   }).timeout(ALLOW_TIMEOUT);
 });

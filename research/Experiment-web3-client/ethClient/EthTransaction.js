@@ -137,7 +137,7 @@ class EthTransaction {
     } else {
       this._chainId = chainId || data.chainId || 0;
     }
-    console.log(`chain id:${this._chainId}`);
+    //console.log(`chain id:${this._chainId}`);
   }
 
   hash(option) {
@@ -227,6 +227,7 @@ class EthTransaction {
     debug("before sign msgHash:" + Buffer.from(msgHash).toString("hex"));
     debug("chainid:" + this._chainId);
     const sig = ethUtil.ecsign(msgHash, privateKey);
+    //console.log("this._chainId:" + this._chainId);
     if (this._chainId > 0) {
       sig.v += this._chainId * 2 + 8;
     }

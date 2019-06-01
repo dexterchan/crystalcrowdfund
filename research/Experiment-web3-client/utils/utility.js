@@ -96,6 +96,12 @@ const int2Buffer = i => {
   return Buffer.from(padToEven(v, "hex"));
 };
 module.exports.int2Buffer = int2Buffer;
+
+const bufferToInt = b => {
+  return new BN(b).toNumber();
+};
+module.exports.bufferToInt = bufferToInt;
+
 module.exports.toBuffer = v => {
   if (!Buffer.isBuffer(v)) {
     if (Array.isArray(v)) {
